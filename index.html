@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic To-Do List</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+  }
+  .todo-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  h2 { margin-top: 0; }
+  #new-task {
+    width: 80%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  #add-btn {
+    padding: 8px 12px;
+    background: #0078ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  #add-btn:hover { background: #005fcc; }
+  ul { list-style: none; padding: 0; }
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    margin: 4px 0;
+    background: #fafafa;
+    border-radius: 4px;
+    align-items: center;
+  }
+  li.completed span {
+    text-decoration: line-through;
+    color: #888;
+  }
+  button.delete {
+    background: red;
+    color: white;
+    border: none;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  button.delete:hover { background: darkred; }
+</style>
+</head>
+<body>
+<div class="todo-container">
+  <h2>📝 My To-Do List</h2>
+  <input type="text" id="new-task" placeholder="Add a new task...">
+  <button id="add-btn">Add</button>
+  <ul id="task-list"></ul>
+</div>
+
+<script>
+  const taskInput = document.getElementById('new-task');
+  const addBtn = document.getElementById('add-btn');
+  const taskList = document.getElementById('task-list');
+
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  renderTasks();
+
+  addBtn.addEventListener('click', addTask);
+  taskInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') addTask();
+  });
+
+  function addTask() {
+    const text = taskInput.value.trim();
+    if (text) {
+      tasks.push({ text, completed: false });
+      saveTasks();
+      renderTasks();
+      taskInput.value = '';
+    }
+  }
+
+  function toggleTask(index) {
+    tasks[index].completed = !tasks[index].completed;
+    saveTasks();
+    renderTasks();
+  }
+
+  function deleteTask(index) {
+    tasks.splice(index, 1);
+    saveTasks();
+    renderTasks();
+  }
+
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, i) => {
+      const li = document.createElement('li');
+      li.className = task.completed ? 'completed' : '';
+
+      const span = document.createElement('span');
+      span.textContent = task.text;
+      span.style.cursor = 'pointer';
+      span.onclick = () => toggleTask(i);
+
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '✕';
+      delBtn.className = 'delete';
+      delBtn.onclick = () => deleteTask(i);
+
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      taskList.appendChild(li);
+    });
+  }
+
+  function saveTasks() {
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+</script>
+</body>
+</html>
